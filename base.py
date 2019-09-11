@@ -1,8 +1,8 @@
+from dataclasses import dataclass, field
 from functools import partial
 from typing import List
-from dataclasses import dataclass, field
 
-from jira import JIRA
+import jira
 
 
 def recurse_path(instance, path):
@@ -45,7 +45,7 @@ class Dumper:
 
     def __init__(self, server, jql, auth=None):
         self.jql = jql
-        self.jira = JIRA(server=server, basic_auth=auth)
+        self.jira = jira.JIRA(server=server, basic_auth=auth)
 
     def __enter__(self):
         self.jira_fields = {
