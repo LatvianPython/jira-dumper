@@ -21,6 +21,7 @@ class JiraField:
     path: List[str]
 
     def __post_init__(self):
+        self.path = ['fields'] + self.path
         try:
             _, self.name, *_ = self.path
         except ValueError:
@@ -39,18 +40,17 @@ def get_fields(dumper):
 class Dumper:
     """Base class that implements dumping of common/basic Jira fields"""
 
-    issue = JiraField(['key'])
-    creation_date = JiraField(['fields', 'created'])
-    status = JiraField(['fields', 'status', 'name'])
-    issue_type = JiraField(['fields', 'issuetype', 'name'])
-    summary = JiraField(['fields', 'summary'])
-    resolution = JiraField(['fields', 'resolution', 'name'])
-    assignee = JiraField(['fields', 'assignee', 'name'])
-    reporter = JiraField(['fields', 'reporter', 'name'])
-    priority = JiraField(['fields', 'priority', 'name'])
-    original_estimate = JiraField(['fields', 'timetracking', 'originalEstimateSeconds'])
-    remaining_estimate = JiraField(['fields', 'timetracking', 'remainingEstimateSeconds'])
-    time_spent = JiraField(['fields', 'timetracking', 'timeSpentSeconds'])
+    creation_date = JiraField(['created'])
+    status = JiraField(['status', 'name'])
+    issue_type = JiraField(['issuetype', 'name'])
+    summary = JiraField(['summary'])
+    resolution = JiraField(['resolution', 'name'])
+    assignee = JiraField(['assignee', 'name'])
+    reporter = JiraField(['reporter', 'name'])
+    priority = JiraField(['priority', 'name'])
+    original_estimate = JiraField(['timetracking', 'originalEstimateSeconds'])
+    remaining_estimate = JiraField(['timetracking', 'remainingEstimateSeconds'])
+    time_spent = JiraField(['timetracking', 'timeSpentSeconds'])
 
     def __init__(self, server, jql, auth=None):
         self.jql = jql
@@ -68,10 +68,10 @@ class Dumper:
 
     @staticmethod
     def parse_issue(issue, jira_fields):
-        return {name: recurse_path(issue, jira_field.path)
-                for name, jira_field
-                in jira_fields.items()
-                }
+        return dict({name: recurse_path(issue, jira_field.path)
+                     for name, jira_field
+                     in jira_fields.items()
+                     }, issue=issue['key'])
 
     @property
     def issues(self):

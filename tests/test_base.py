@@ -8,18 +8,20 @@ def test_dumper_basic(patch_jira):
 
         issue = issues[0]
         assert issue['status'] == 'Running automatic tests'
+        assert issue['issue'] == 'TEST-42'
 
 
 def test_subclassing(patch_jira):
     class CustomDumper(Dumper):
-        test = JiraField(['fields', 'test'])
+        test = JiraField(['test'])
 
     with CustomDumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
-        assert 'test' in list(dumper.issues)[0]
+        for issue in dumper.issues:
+            assert 'test' in issue
 
 
 def test_jira_field():
-    field = JiraField(['fields', '2', '3'])
+    field = JiraField(['2', '3'])
 
     assert field.name == '2'
     assert len(field.path) == 3
@@ -41,7 +43,7 @@ def test_get_fields():
 
 
 def test_parse_issue():
-    parsed_issue = Dumper.parse_issue({'a': 'b'}, {'c': JiraField(['a'])})
+    parsed_issue = Dumper.parse_issue({'fields': {'a': 'b'}, 'key': None}, {'c': JiraField(['a'])})
 
     assert 'c' in parsed_issue
     assert parsed_issue['c'] == 'b'

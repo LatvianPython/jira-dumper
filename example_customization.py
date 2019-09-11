@@ -5,7 +5,7 @@ from base import Dumper, JiraField
 
 class CustomDumper(Dumper):
     # can add or override fields, to change this it is best to consult results from the Jira REST API
-    assignee = JiraField(['fields', 'assignee', 'displayName'])  # path from where to take value from REST response
+    assignee = JiraField(['assignee', 'displayName'])  # path from where to take value from REST response
 
 
 def main():
