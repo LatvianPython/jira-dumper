@@ -9,9 +9,9 @@ def recurse_path(instance, path):
     current_attribute, *path = path
     try:
         if path:
-            return recurse_path(getattr(instance, current_attribute), path)
-        return getattr(instance, current_attribute)
-    except (TypeError, AttributeError):
+            return recurse_path(instance[current_attribute], path)
+        return instance[current_attribute]
+    except (TypeError, KeyError):
         return None
 
 
@@ -25,6 +25,15 @@ class JiraField:
             _, self.name, *_ = self.path
         except ValueError:
             self.name, *_ = self.path
+
+
+def get_fields(dumper):
+    return {
+        attribute: jira_field
+        for attribute, jira_field
+        in map(lambda attribute: (attribute, getattr(dumper, attribute, None)), dir(dumper))
+        if isinstance(jira_field, JiraField)
+    }
 
 
 class Dumper:
@@ -48,11 +57,7 @@ class Dumper:
         self.jira = jira.JIRA(server=server, basic_auth=auth)
 
     def __enter__(self):
-        self.jira_fields = {
-            attribute: jira_field
-            for attribute, jira_field in map(lambda attribute: (attribute, getattr(self, attribute, None)), dir(self))
-            if isinstance(jira_field, JiraField)
-        }
+        self.jira_fields = get_fields(self)
 
         fields = ','.join(tuple(jira_field.name for jira_field in self.jira_fields.values()))
         self.jira_issues = list(self.issue_generator(self.jql, fields, None))
@@ -61,15 +66,16 @@ class Dumper:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def parse_issue(self, issue):
+    @staticmethod
+    def parse_issue(issue, jira_fields):
         return {name: recurse_path(issue, jira_field.path)
                 for name, jira_field
-                in self.jira_fields.items()
+                in jira_fields.items()
                 }
 
     @property
     def issues(self):
-        return (self.parse_issue(issue) for issue in self.jira_issues)
+        return (self.parse_issue(issue.raw, self.jira_fields) for issue in self.jira_issues)
 
     def issue_generator(self, jql, fields, expand):
         page_size = 50
