@@ -37,7 +37,7 @@ def get_raw(x):
 
 def parse(parser, fields, data):
     parser = partial(parser, fields=fields)
-    yield from map(parser, map(get_raw, data))
+    return map(parser, map(get_raw, data))
 
 
 class IssueField(List):
@@ -93,7 +93,7 @@ class Dumper:
 
     def issue_worklogs(self, issue):
         parser = partial(extract_data, key_function=lambda x: issue)
-        yield from parse(parser, self.worklog_fields, self.jira.worklogs(issue=issue))
+        return parse(parser, self.worklog_fields, self.jira.worklogs(issue=issue))
 
     def issue_generator(self, jql, fields, expand):
         page_size = 50
@@ -102,7 +102,6 @@ class Dumper:
         start_at = 0
         issues = search_issues(startAt=start_at)
         while issues:
-            for issue in issues:
-                yield issue
+            yield from issues
             start_at += page_size
             issues = search_issues(startAt=start_at)
