@@ -20,7 +20,7 @@ def test_subclassing(patch_jira):
             assert 'test' in issue
 
 
-def test_jira_field():
+def test_issue_field():
     field = IssueField(['2', '3'])
 
     assert field[1] == '2'
@@ -42,14 +42,15 @@ def test_get_fields():
     assert len(fields.keys()) > len(get_fields(Dumper))
 
 
-def test_parse_issue():
-    parsed_issue = extract_data({'fields': {'a': 'b'}, 'key': None},
+def test_extract_data():
+    parsed_issue = extract_data({'fields': {'a': 'b'}, 'key': 'TEST-123'},
                                 {'c': IssueField(['a'])},
                                 lambda x: x['key']
                                 )
 
     assert 'c' in parsed_issue
     assert parsed_issue['c'] == 'b'
+    assert parsed_issue['issue'] == 'TEST-123'
 
 
 def test_worklogs(patch_jira):
