@@ -1,0 +1,41 @@
+{
+  "self": "https://jira.server.lv/rest/api/2/issue/12345/worklog/54321",
+  "author": {
+    "self": "https://jira.server.lv/rest/api/2/user?username=john.doe",
+    "name": "john.doe",
+    "key": "john.doe",
+    "emailAddress": "john.doe@initech.lv",
+    "avatarUrls": {
+      "48x48": "https://jira.server.lv/secure/useravatar?avatarId=1337",
+      "24x24": "https://jira.server.lv/secure/useravatar?size=small&avatarId=1337",
+      "16x16": "https://jira.server.lv/secure/useravatar?size=xsmall&avatarId=1337",
+      "32x32": "https://jira.server.lv/secure/useravatar?size=medium&avatarId=1337"
+    },
+    "displayName": "John Doe",
+    "active": true,
+    "timeZone": "Europe/Riga"
+  },
+  "updateAuthor": {
+    "self": "https://jira.server.lv/rest/api/2/user?username=john.doe",
+    "name": "john.doe",
+    "key": "john.doe",
+    "emailAddress": "john.doe@initech.lv",
+    "avatarUrls": {
+      "48x48": "https://jira.server.lv/secure/useravatar?avatarId=1337",
+      "24x24": "https://jira.server.lv/secure/useravatar?size=small&avatarId=1337",
+      "16x16": "https://jira.server.lv/secure/useravatar?size=xsmall&avatarId=1337",
+      "32x32": "https://jira.server.lv/secure/useravatar?size=medium&avatarId=1337"
+    },
+    "displayName": "John Doe",
+    "active": true,
+    "timeZone": "Europe/Riga"
+  },
+  "comment": "writing this file",
+  "created": "2019-09-12T18:01:10.000+0300",
+  "updated": "2019-09-12T18:01:10.000+0300",
+  "started": "2019-09-12T18:01:10.000+0300",
+  "timeSpent": "3h",
+  "timeSpentSeconds": 10800,
+  "id": "54321",
+  "issueId": "12345"
+}

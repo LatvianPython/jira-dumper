@@ -1,4 +1,4 @@
-from base import Dumper, JiraField, recurse_path, get_fields
+from base import Dumper, IssueField, recurse_path, get_fields, extract_data
 
 
 def test_dumper_basic(patch_jira):
@@ -13,7 +13,7 @@ def test_dumper_basic(patch_jira):
 
 def test_subclassing(patch_jira):
     class CustomDumper(Dumper):
-        test = JiraField(['test'])
+        test = IssueField(['test'])
 
     with CustomDumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
         for issue in dumper.issues:
@@ -21,11 +21,11 @@ def test_subclassing(patch_jira):
 
 
 def test_jira_field():
-    field = JiraField(['2', '3'])
+    field = IssueField(['2', '3'])
 
-    assert field.name == '2'
-    assert len(field.path) == 3
-    assert field.path[0] == 'fields'
+    assert field[1] == '2'
+    assert len(field) == 3
+    assert field[0] == 'fields'
 
 
 def test_recurse_path():
@@ -35,7 +35,7 @@ def test_recurse_path():
 
 def test_get_fields():
     class CustomDumper(Dumper):
-        test = JiraField(['test1', 'test2'])
+        test = IssueField(['test1', 'test2'])
 
     fields = get_fields(CustomDumper)
     assert 'test' in fields
@@ -43,7 +43,18 @@ def test_get_fields():
 
 
 def test_parse_issue():
-    parsed_issue = Dumper.parse_issue({'fields': {'a': 'b'}, 'key': None}, {'c': JiraField(['a'])})
+    parsed_issue = extract_data({'fields': {'a': 'b'}, 'key': None},
+                                {'c': IssueField(['a'])},
+                                lambda x: x['key']
+                                )
 
     assert 'c' in parsed_issue
     assert parsed_issue['c'] == 'b'
+
+
+def test_worklogs(patch_jira):
+    with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
+        worklogs = list(dumper.worklogs)
+
+        assert len(worklogs) == 10
+        assert worklogs[0]['author'] == 'john.doe'

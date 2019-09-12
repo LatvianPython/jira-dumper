@@ -2,4 +2,3 @@ jira
 pandas
 pytest
 coverage
-pytest-cov

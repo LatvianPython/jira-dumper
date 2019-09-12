@@ -1,11 +1,11 @@
 import pandas as pd
 
-from base import Dumper, JiraField
+from base import Dumper, IssueField
 
 
 class CustomDumper(Dumper):
     # can add or override fields, to change this it is best to consult results from the Jira REST API
-    assignee = JiraField(['assignee', 'displayName'])  # path from where to take value from REST response
+    assignee = IssueField(['assignee', 'displayName'])  # path from where to take value from REST response
 
 
 def main():

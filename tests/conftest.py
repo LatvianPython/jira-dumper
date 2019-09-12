@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture
 def patch_jira(monkeypatch):
-    from jira import Issue
+    from jira import Issue, Worklog
     import json
     import jira
 
@@ -11,12 +11,19 @@ def patch_jira(monkeypatch):
         def __init__(self, *args, **kwargs):
             pass
 
+        def worklogs(self, issue):
+            with open('./test_data/sample_worklog.json', mode='r', encoding='utf-8') as file:
+                raw_worklog = json.loads(file.read())
+                test_worklog = Worklog(options=None, session=None, raw=raw_worklog)
+
+            return [test_worklog] * 10
+
         def search_issues(self, *args, **kwargs):
             _ = args, self
             if kwargs['startAt'] > 0:
                 return []
 
-            with open('./tests/test_data/sample_issue.json', mode='r', encoding='utf-8') as file:
+            with open('./test_data/sample_issue.json', mode='r', encoding='utf-8') as file:
                 raw_issue = json.loads(file.read())
                 test_issue = Issue(options=None, session=None, raw=raw_issue)
 
