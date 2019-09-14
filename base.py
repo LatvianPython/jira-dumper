@@ -44,6 +44,16 @@ def parse(parser, fields, data):
     return map(parser, map(get_raw, data))
 
 
+def parse_list(issues, path_to_list, fields):
+    get_list = partial(recurse_path, path=path_to_list)
+    return (
+        dict(**extract_dict(list_item, fields),
+             issue=issue['key'])
+        for issue in map(get_raw, issues)
+        for list_item in get_list(issue)
+    )
+
+
 class IssueField(List):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -125,28 +135,12 @@ class Dumper:
     @property
     def fix_versions(self):
         fix_version_path = ['fields', 'fixVersions']
-
-        get_fix_versions = partial(recurse_path, path=fix_version_path)
-
-        return (
-            dict(**extract_dict(comment, self.fix_version_fields),
-                 issue=issue.key)
-            for issue in self.jira_issues
-            for comment in get_fix_versions(issue.raw)
-        )
+        return parse_list(self.jira_issues, fix_version_path, self.fix_version_fields)
 
     @property
     def comments(self):
         comment_path = ['fields', 'comment', 'comments']
-
-        get_comments = partial(recurse_path, path=comment_path)
-
-        return (
-            dict(**extract_dict(comment, self.comment_fields),
-                 issue=issue.key)
-            for issue in self.jira_issues
-            for comment in get_comments(issue.raw)
-        )
+        return parse_list(self.jira_issues, comment_path, self.comment_fields)
 
     @property
     def transitions(self):
