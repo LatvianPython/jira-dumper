@@ -2,6 +2,303 @@
   "id": "42",
   "self": "https://jira.server.com/rest/api/2/issue/42",
   "key": "TEST-42",
+  "changelog": {
+    "startAt": 0,
+    "maxResults": 8,
+    "total": 8,
+    "histories": [
+      {
+        "id": "10614",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Project",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "JIRA"
+          }
+        ]
+      },
+      {
+        "id": "10615",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Summary",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "Derp"
+          }
+        ]
+      },
+      {
+        "id": "10616",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Reporter",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "john@server.com"
+          }
+        ]
+      },
+      {
+        "id": "10617",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Description",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "Derpy derp derpy derp."
+          }
+        ]
+      },
+      {
+        "id": "10618",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Component",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "Derp Management"
+          }
+        ]
+      },
+      {
+        "id": "10619",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Priority",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "Minor"
+          }
+        ]
+      },
+      {
+        "id": "10620",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Status",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "Assigned"
+          }
+        ]
+      },
+      {
+        "id": "10621",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2002-02-08T05:08:00.000+0000",
+        "items": [
+          {
+            "field": "Assignee",
+            "fieldtype": "jira",
+            "from": null,
+            "fromString": " ",
+            "to": null,
+            "toString": "john@server.com"
+          }
+        ]
+      },
+      {
+        "id": "275822",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2009-03-06T03:06:46.065+0000",
+        "items": [
+          {
+            "field": "Status",
+            "fieldtype": "jira",
+            "from": "1",
+            "fromString": "Open",
+            "to": "10032",
+            "toString": "Short Term Roadmap"
+          }
+        ]
+      },
+      {
+        "id": "275825",
+        "author": {
+          "self": "https://jira.server.com/rest/api/2/user?username=john%40server.com",
+          "name": "john@server.com",
+          "key": "john@server.com",
+          "emailAddress": "john at server dot com",
+          "avatarUrls": {
+            "48x48": "https://avatar-cdn.server.com/123456?d=mm&s=48",
+            "24x24": "https://avatar-cdn.server.com/123456?d=mm&s=24",
+            "16x16": "https://avatar-cdn.server.com/123456?d=mm&s=16",
+            "32x32": "https://avatar-cdn.server.com/123456?d=mm&s=32"
+          },
+          "displayName": "john doe",
+          "active": true,
+          "timeZone": "Australia/Sydney"
+        },
+        "created": "2009-04-06T03:06:46.065+0000",
+        "items": [
+          {
+            "field": "Status",
+            "fieldtype": "jira",
+            "from": "10032",
+            "fromString": "Short Term Roadmap",
+            "to": "1",
+            "toString": "Open"
+          }
+        ]
+      }
+    ]
+  },
   "fields": {
     "summary": "Test issue",
     "issuetype": {

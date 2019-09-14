@@ -24,10 +24,14 @@ def get_fields(dumper):
     }
 
 
+def extract_dict(structure, fields):
+    return {name: recurse_path(structure, path)
+            for name, path
+            in fields.items()}
+
+
 def extract_data(structure, fields, key_function):
-    return dict({name: recurse_path(structure, path)
-                 for name, path
-                 in fields.items()},
+    return dict(extract_dict(structure, fields),
                 issue=key_function(structure))
 
 
@@ -68,6 +72,8 @@ class Dumper:
         'time_spent': ['timeSpentSeconds']
     }
 
+    get_transitions = True
+
     def __init__(self, server, jql, auth=None):
         self.jql = jql
         self.jira = jira.JIRA(server=server, basic_auth=auth)
@@ -75,12 +81,42 @@ class Dumper:
     def __enter__(self):
         self.jira_fields = get_fields(self)
 
+        expand = 'changelog' if self.get_transitions else None
+
         fields = ','.join(tuple(map(lambda x: x[1], self.jira_fields.values())))
-        self.jira_issues = list(self.issue_generator(self.jql, fields, None))
+        self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+    @property
+    def transitions(self):
+        history_fields = {
+            'author': ['author', 'name'],
+            'created': ['created']
+        }
+
+        item_fields = {
+            'from': ['fromString'],
+            'to': ['toString']
+        }
+
+        def get_items(histories):
+            issue, histories = histories
+            yield from (
+                dict(**extract_dict(history, history_fields),
+                     **extract_dict(item, item_fields),
+                     issue=issue)
+                for history in histories
+                for item in history['items']
+                if item['field'] == 'Status'
+            )
+
+        def get_histories(issue):
+            return (issue.key, recurse_path(get_raw(issue), ['changelog', 'histories']))
+
+        return map(get_items, map(get_histories, self.jira_issues))
 
     @property
     def issues(self):

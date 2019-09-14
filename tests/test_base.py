@@ -59,3 +59,14 @@ def test_worklogs(patch_jira):
 
         assert len(worklogs) == 10
         assert worklogs[0]['author'] == 'john.doe'
+
+
+def test_transitions(patch_jira):
+    with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
+        transitions = list(next(dumper.transitions))
+
+        assert len(transitions) == 3
+
+        transition = transitions[0]
+        assert transition['author'] == 'john@server.com'
+        assert list(transition.keys()) == ['author', 'created', 'from', 'to', 'issue']
