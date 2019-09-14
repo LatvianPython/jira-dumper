@@ -1,4 +1,5 @@
-from base import Dumper, IssueField, recurse_path, get_fields, extract_data
+from jira_dump import Dumper, IssueField
+from jira_dump.base import recurse_path, get_fields, extract_data
 
 
 def test_dumper_basic(patch_jira):

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from base import Dumper, IssueField
+from jira_dump import Dumper, IssueField
 
 
 class CustomDumper(Dumper):

@@ -50,7 +50,7 @@ def parse_list(issues, path_to_list, fields):
         dict(**extract_dict(list_item, fields),
              issue=issue['key'])
         for issue in map(get_raw, issues)
-        for list_item in get_list(issue)
+        for list_item in get_list(issue) or []
     )
 
 

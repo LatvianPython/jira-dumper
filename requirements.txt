@@ -1,4 +1,1 @@
 jira
-pandas
-pytest
-coverage
