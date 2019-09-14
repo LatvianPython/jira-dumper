@@ -1,5 +1,5 @@
-from itertools import chain
 from functools import partial
+from itertools import chain
 from typing import List
 
 import jira
@@ -104,19 +104,19 @@ class Dumper:
 
         def get_items(histories):
             issue, histories = histories
-            yield from (
+            return (
                 dict(**extract_dict(history, history_fields),
                      **extract_dict(item, item_fields),
                      issue=issue)
                 for history in histories
                 for item in history['items']
-                if item['field'] == 'Status'
+                if item['field'] == 'status'
             )
 
         def get_histories(issue):
-            return (issue.key, recurse_path(get_raw(issue), ['changelog', 'histories']))
+            return issue.key, recurse_path(get_raw(issue), ['changelog', 'histories'])
 
-        return map(get_items, map(get_histories, self.jira_issues))
+        return chain.from_iterable(map(get_items, map(get_histories, self.jira_issues)))
 
     @property
     def issues(self):

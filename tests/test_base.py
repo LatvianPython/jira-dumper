@@ -63,7 +63,7 @@ def test_worklogs(patch_jira):
 
 def test_transitions(patch_jira):
     with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
-        transitions = list(next(dumper.transitions))
+        transitions = list(dumper.transitions)
 
         assert len(transitions) == 3
 

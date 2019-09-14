@@ -201,7 +201,7 @@
         "created": "2002-02-08T05:08:00.000+0000",
         "items": [
           {
-            "field": "Status",
+            "field": "status",
             "fieldtype": "jira",
             "from": null,
             "fromString": " ",
@@ -259,7 +259,7 @@
         "created": "2009-03-06T03:06:46.065+0000",
         "items": [
           {
-            "field": "Status",
+            "field": "status",
             "fieldtype": "jira",
             "from": "1",
             "fromString": "Open",
@@ -288,7 +288,7 @@
         "created": "2009-04-06T03:06:46.065+0000",
         "items": [
           {
-            "field": "Status",
+            "field": "status",
             "fieldtype": "jira",
             "from": "10032",
             "fromString": "Short Term Roadmap",
