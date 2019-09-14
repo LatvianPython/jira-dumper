@@ -70,3 +70,14 @@ def test_transitions(patch_jira):
         transition = transitions[0]
         assert transition['author'] == 'john@server.com'
         assert list(transition.keys()) == ['author', 'created', 'from', 'to', 'issue']
+
+
+def test_comments(patch_jira):
+    with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
+        comments = list(dumper.comments)
+
+        assert len(comments) == 1
+
+        comment = comments[0]
+        assert comment['author'] == 'jane.doe@server.com'
+        assert sorted(list(comment.keys())) == sorted(['author', 'created', 'body', 'issue'])

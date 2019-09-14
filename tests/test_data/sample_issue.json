@@ -326,6 +326,47 @@
       "statusCategory": {
         "name": "Testing"
       }
+    },
+    "comment": {
+      "comments": [
+        {
+          "self": "https://jira.server.lv/rest/api/2/issue/1234/comment/1234",
+          "id": "1234",
+          "author": {
+            "self": "https://jira.server.lv/rest/api/2/user?username=jane.doe%40server.com",
+            "name": "jane.doe@server.com",
+            "key": "jane.doe@server.com",
+            "emailAddress": "jane.doe@server.com",
+            "avatarUrls": {
+              "48x48": "https://jira.server.lv/secure/useravatar?avatarId=41234",
+              "24x24": "https://jira.server.lv/secure/useravatar?size=small&avatarId=41234",
+              "16x16": "https://jira.server.lv/secure/useravatar?size=xsmall&avatarId=41234",
+              "32x32": "https://jira.server.lv/secure/useravatar?size=medium&avatarId=41234"
+            },
+            "displayName": "Jane Doe",
+            "active": true,
+            "timeZone": "Europe/Riga"
+          },
+          "body": "this is a comment",
+          "updateAuthor": {
+            "self": "https://jira.server.lv/rest/api/2/user?username=jane.doe%40server.com",
+            "name": "jane.doe@server.com",
+            "key": "jane.doe@server.com",
+            "emailAddress": "jane.doe@server.com",
+            "avatarUrls": {
+              "48x48": "https://jira.server.lv/secure/useravatar?avatarId=41234",
+              "24x24": "https://jira.server.lv/secure/useravatar?size=small&avatarId=41234",
+              "16x16": "https://jira.server.lv/secure/useravatar?size=xsmall&avatarId=41234",
+              "32x32": "https://jira.server.lv/secure/useravatar?size=medium&avatarId=41234"
+            },
+            "displayName": "Jane Doe",
+            "active": true,
+            "timeZone": "Europe/Riga"
+          },
+          "created": "2019-06-27T08:57:24.000+0300",
+          "updated": "2019-06-27T08:57:24.000+0300"
+        }
+      ]
     }
   }
 }

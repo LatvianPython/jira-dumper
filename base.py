@@ -72,7 +72,24 @@ class Dumper:
         'time_spent': ['timeSpentSeconds']
     }
 
+    history_fields = {
+        'author': ['author', 'name'],
+        'created': ['created']
+    }
+
+    item_fields = {
+        'from': ['fromString'],
+        'to': ['toString']
+    }
+
+    comment_fields = {
+        'created': ['created'],
+        'author': ['author', 'name'],
+        'body': ['body']
+    }
+
     get_transitions = True
+    get_comments = True
 
     def __init__(self, server, jql, auth=None):
         self.jql = jql
@@ -83,7 +100,13 @@ class Dumper:
 
         expand = 'changelog' if self.get_transitions else None
 
-        fields = ','.join(tuple(map(lambda x: x[1], self.jira_fields.values())))
+        fields = list(map(lambda x: x[1], self.jira_fields.values()))
+
+        if self.get_comments:
+            fields.append('comment')
+
+        fields = ','.join(tuple(fields))
+
         self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
         return self
 
@@ -91,22 +114,25 @@ class Dumper:
         pass
 
     @property
+    def comments(self):
+        comment_path = ['fields', 'comment', 'comments']
+
+        get_comments = partial(recurse_path, path=comment_path)
+
+        return (
+            dict(**extract_dict(comment, self.comment_fields),
+                 issue=issue.key)
+            for issue in self.jira_issues
+            for comment in get_comments(issue.raw)
+        )
+
+    @property
     def transitions(self):
-        history_fields = {
-            'author': ['author', 'name'],
-            'created': ['created']
-        }
-
-        item_fields = {
-            'from': ['fromString'],
-            'to': ['toString']
-        }
-
         def get_items(histories):
             issue, histories = histories
             return (
-                dict(**extract_dict(history, history_fields),
-                     **extract_dict(item, item_fields),
+                dict(**extract_dict(history, self.history_fields),
+                     **extract_dict(item, self.item_fields),
                      issue=issue)
                 for history in histories
                 for item in history['items']

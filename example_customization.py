@@ -18,6 +18,7 @@ def main():
         pd.DataFrame(jira_dump.issues).to_csv('./issues.csv')
         pd.DataFrame(jira_dump.transitions).to_csv('./transitions.csv')
         pd.DataFrame(jira_dump.worklogs).to_csv('./worklogs.csv')
+        pd.DataFrame(jira_dump.comments).to_csv('./comments.csv')
 
 
 if __name__ == '__main__':
