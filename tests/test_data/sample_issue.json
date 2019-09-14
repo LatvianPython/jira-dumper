@@ -327,6 +327,17 @@
         "name": "Testing"
       }
     },
+    "fixVersions": [
+      {
+        "self": "https://jira.server.lv/rest/api/2/version/1234",
+        "id": "1234",
+        "description": "big bad release",
+        "name": "RELEASE_05",
+        "archived": false,
+        "released": true,
+        "releaseDate": "2019-08-04"
+      }
+    ],
     "comment": {
       "comments": [
         {

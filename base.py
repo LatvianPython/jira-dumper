@@ -88,8 +88,15 @@ class Dumper:
         'body': ['body']
     }
 
+    fix_version_fields = {
+        'name': ['name'],
+        'description': ['description'],
+        'release_date': ['releaseDate']
+    }
+
     get_transitions = True
     get_comments = True
+    get_fix_versions = True
 
     def __init__(self, server, jql, auth=None):
         self.jql = jql
@@ -104,6 +111,8 @@ class Dumper:
 
         if self.get_comments:
             fields.append('comment')
+        if self.get_fix_versions:
+            fields.append('fixVersions')
 
         fields = ','.join(tuple(fields))
 
@@ -112,6 +121,19 @@ class Dumper:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+    @property
+    def fix_versions(self):
+        fix_version_path = ['fields', 'fixVersions']
+
+        get_fix_versions = partial(recurse_path, path=fix_version_path)
+
+        return (
+            dict(**extract_dict(comment, self.fix_version_fields),
+                 issue=issue.key)
+            for issue in self.jira_issues
+            for comment in get_fix_versions(issue.raw)
+        )
 
     @property
     def comments(self):

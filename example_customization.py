@@ -6,7 +6,7 @@ from base import Dumper, IssueField
 class CustomDumper(Dumper):
     # can add or override fields, to change this it is best to consult results from the Jira REST API
     assignee = IssueField(['assignee', 'displayName'])  # path from where to take value from REST response
-    get_transitions = True # can be just as well turned off, otherwise changelog will be requested from Jira
+    get_transitions = True  # can be just as well turned off, otherwise changelog will be requested from Jira
 
 
 def main():
@@ -19,6 +19,7 @@ def main():
         pd.DataFrame(jira_dump.transitions).to_csv('./transitions.csv')
         pd.DataFrame(jira_dump.worklogs).to_csv('./worklogs.csv')
         pd.DataFrame(jira_dump.comments).to_csv('./comments.csv')
+        pd.DataFrame(jira_dump.fix_versions).to_csv('./fix_versions.csv')
 
 
 if __name__ == '__main__':
