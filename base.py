@@ -104,6 +104,13 @@ class Dumper:
         'release_date': ['releaseDate']
     }
 
+    sla_overview_fields = {
+        'status': ['status'],
+        'name': ['slaName'],
+        'working_duration_seconds': ['workingDurationAsSeconds'],
+        'sla_value_minutes': ['slaValueAsMinutes']
+    }
+
     get_transitions = True
     get_comments = True
     get_fix_versions = True
@@ -169,9 +176,22 @@ class Dumper:
     def worklogs(self):
         return chain.from_iterable(map(self.issue_worklogs, map(lambda issue: issue.key, self.jira_issues)))
 
+    @property
+    def sla_overview(self):
+        return chain.from_iterable(map(self.get_sla, map(lambda x: x.key, self.jira_issues)))
+
     def issue_worklogs(self, issue):
         parser = partial(extract_data, key_function=lambda x: issue)
         return parse(parser, self.worklog_fields, self.jira.worklogs(issue=issue))
+
+    def get_sla(self, issue):
+        # noinspection PyProtectedMember
+        # https://confluence.snapbytes.com/display/TTS/REST+Services
+        return (
+            dict(extract_dict(sla, self.sla_overview_fields), issue=issue)
+            for sla
+            in self.jira._get_json(path=issue, params=None, base='{server}/rest/tts-api/latest/sla/overview/{path}')
+        )
 
     def issue_generator(self, jql, fields, expand):
         page_size = 50

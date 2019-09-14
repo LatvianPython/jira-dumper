@@ -1,0 +1,40 @@
+[
+  {
+    "timePerformed": 1562700000000,
+    "slaValueType": "SLA_VALUE",
+    "workingDuration": "3 days",
+    "workingDurationAsSeconds": 97200,
+    "pausedDuration": "0",
+    "pausedDurationAsSeconds": 0,
+    "slaValueAsMinutes": 5400,
+    "slaValueAsTimeString": "10d",
+    "status": "SUCCESS",
+    "breachAsSeconds": 0,
+    "originDate": 1562700000000,
+    "statusDate": 1562700000000,
+    "expectedTargetDate": 1562700000000,
+    "actualTargetDate": 1562700000000,
+    "negotiationDateProvidedByCustomField": false,
+    "workingCalendar": "Project calendar",
+    "slaName": "HIGH PRIO"
+  },
+  {
+    "timePerformed": 1562700000000,
+    "slaValueType": "SLA_VALUE",
+    "workingDuration": "3 days",
+    "workingDurationAsSeconds": 97200,
+    "pausedDuration": "0",
+    "pausedDurationAsSeconds": 0,
+    "slaValueAsMinutes": 10800,
+    "slaValueAsTimeString": "20d",
+    "status": "SUCCESS",
+    "breachAsSeconds": 0,
+    "originDate": 1562700000000,
+    "statusDate": 1562700000000,
+    "expectedTargetDate": 1562700000000,
+    "actualTargetDate": 1562700000000,
+    "negotiationDateProvidedByCustomField": false,
+    "workingCalendar": "Project calendar",
+    "slaName": "LOW PRIO"
+  }
+]

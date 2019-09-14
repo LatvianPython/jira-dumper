@@ -11,6 +11,12 @@ def patch_jira(monkeypatch):
         def __init__(self, *args, **kwargs):
             pass
 
+        def _get_json(self, path, params, base):
+            with open('./test_data/sample_sla.json', mode='r', encoding='utf-8') as file:
+                test_sla = json.loads(file.read())
+
+            return test_sla
+
         def worklogs(self, issue):
             with open('./test_data/sample_worklog.json', mode='r', encoding='utf-8') as file:
                 raw_worklog = json.loads(file.read())

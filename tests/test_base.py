@@ -92,3 +92,13 @@ def test_fix_versions(patch_jira):
         fix_version = fix_versions[0]
         assert fix_version['name'] == 'RELEASE_05'
         assert sorted(list(fix_version.keys())) == sorted(['description', 'name', 'release_date', 'issue'])
+
+
+def test_sla_overview(patch_jira):
+    with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
+        sla_overview = list(dumper.sla_overview)
+
+        assert len(sla_overview) == 2
+
+        sla = sla_overview[0]
+        assert sla['status'] == 'SUCCESS'
