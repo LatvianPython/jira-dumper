@@ -1,6 +1,7 @@
 from functools import partial
 from itertools import chain
 from typing import List
+import inspect
 
 import jira
 
@@ -113,9 +114,15 @@ class Dumper:
     get_comments = True
     get_fix_versions = True
 
-    def __init__(self, server, jql, auth=None):
+    def __init__(self, server, jql, auth=None, tqdm=False):
         self.jql = jql
         self.jira = jira.JIRA(server=server, basic_auth=auth)
+
+        if tqdm:
+            import tqdm
+            self.tqdm = tqdm
+        else:
+            self.tqdm = None
 
     def __enter__(self):
         self.jira_fields = get_fields(self)
@@ -185,6 +192,20 @@ class Dumper:
     @property
     def sla_overview(self):
         return chain.from_iterable(map(self.get_sla, map(lambda x: x.key, self.jira_issues)))
+
+    def __getattribute__(self, item):
+        if super().__getattribute__('tqdm') is not None:
+            properties = [(name, object_)
+                          for name, object_
+                          in inspect.getmembers(Dumper)
+                          if '__' not in name and inspect.isdatadescriptor(object_)]
+
+            if item in [name for name, _ in properties]:
+                return self.tqdm.tqdm(super().__getattribute__(item))
+
+        return super().__getattribute__(item)
+
+
 
     def issue_worklogs(self, issue):
         parser = partial(extract_data, key_function=lambda x: issue)

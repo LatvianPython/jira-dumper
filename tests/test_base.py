@@ -1,3 +1,8 @@
+import inspect
+
+import pandas as pd
+import tqdm
+
 from jira_dump import Dumper, IssueField
 from jira_dump.base import recurse_path, get_fields, extract_data
 
@@ -106,9 +111,13 @@ def test_sla_overview(patch_jira):
 
 
 def test_dataframes(patch_jira):
-    import pandas as pd
-    import inspect
     with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
         for name, object_ in inspect.getmembers(Dumper):
             if '__' not in name and inspect.isdatadescriptor(object_):
                 df = pd.DataFrame(getattr(dumper, name))
+                assert len(df) > 0
+
+
+def test_tqdm(patch_jira):
+    with Dumper(server='https://jira.server.com', jql=None, auth=None, tqdm=True) as dumper:
+        assert isinstance(dumper.issues, tqdm.tqdm)
