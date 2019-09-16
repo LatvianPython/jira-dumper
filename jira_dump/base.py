@@ -146,7 +146,10 @@ class Dumper:
         fields = ','.join(tuple(fields))
         expand = ','.join(tuple(expand))
 
-        self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
+        if self.tqdm is not None:
+            self.jira_issues = list(self.tqdm.tqdm(self.issue_generator(self.jql, fields, expand), desc='Issues'))
+        else:
+            self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -201,7 +204,7 @@ class Dumper:
                           if '__' not in name and inspect.isdatadescriptor(object_)]
 
             if item in [name for name, _ in properties]:
-                return self.tqdm.tqdm(super().__getattribute__(item))
+                return self.tqdm.tqdm(super().__getattribute__(item), desc=item)
 
         return super().__getattribute__(item)
 
