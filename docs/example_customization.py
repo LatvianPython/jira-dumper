@@ -5,7 +5,8 @@ from jira_dump import Dumper, IssueField
 
 class CustomDumper(Dumper):
     # can add or override fields, to change this it is best to consult results from the Jira REST API
-    assignee = IssueField(['assignee', 'displayName'])  # path from where to take value from REST response
+    assignee = IssueField(['fields', 'assignee', 'displayName'])  # path from where to take value from REST response
+    rendered_description = IssueField([''])
     get_transitions = True  # can be just as well turned off, otherwise changelog will be requested from Jira
 
 

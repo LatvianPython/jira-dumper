@@ -14,7 +14,7 @@ def test_dumper_basic(patch_jira):
 
 def test_subclassing(patch_jira):
     class CustomDumper(Dumper):
-        test = IssueField(['test'])
+        test = IssueField(['fields', 'test'])
 
     with CustomDumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
         for issue in dumper.issues:
@@ -22,7 +22,7 @@ def test_subclassing(patch_jira):
 
 
 def test_issue_field():
-    field = IssueField(['2', '3'])
+    field = IssueField(['fields', '2', '3'])
 
     assert field[1] == '2'
     assert len(field) == 3
@@ -45,7 +45,7 @@ def test_get_fields():
 
 def test_extract_data():
     parsed_issue = extract_data({'fields': {'a': 'b'}, 'key': 'TEST-123'},
-                                {'c': IssueField(['a'])},
+                                {'c': IssueField(['fields', 'a'])},
                                 lambda x: x['key']
                                 )
 
@@ -103,3 +103,12 @@ def test_sla_overview(patch_jira):
 
         sla = sla_overview[0]
         assert sla['status'] == 'SUCCESS'
+
+
+def test_dataframes(patch_jira):
+    import pandas as pd
+    import inspect
+    with Dumper(server='https://jira.server.com', jql=None, auth=None) as dumper:
+        for name, object_ in inspect.getmembers(Dumper):
+            if '__' not in name and inspect.isdatadescriptor(object_):
+                df = pd.DataFrame(getattr(dumper, name))

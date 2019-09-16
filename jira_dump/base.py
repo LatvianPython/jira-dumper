@@ -55,25 +55,23 @@ def parse_list(issues, path_to_list, fields):
 
 
 class IssueField(List):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.insert(0, 'fields')
+    pass
 
 
 class Dumper:
     """Base class that implements dumping of common/basic Jira fields"""
 
-    creation_date = IssueField(['created'])
-    status = IssueField(['status', 'name'])
-    issue_type = IssueField(['issuetype', 'name'])
-    summary = IssueField(['summary'])
-    resolution = IssueField(['resolution', 'name'])
-    assignee = IssueField(['assignee', 'name'])
-    reporter = IssueField(['reporter', 'name'])
-    priority = IssueField(['priority', 'name'])
-    original_estimate = IssueField(['timetracking', 'originalEstimateSeconds'])
-    remaining_estimate = IssueField(['timetracking', 'remainingEstimateSeconds'])
-    time_spent = IssueField(['timetracking', 'timeSpentSeconds'])
+    creation_date = IssueField(['fields', 'created'])
+    status = IssueField(['fields', 'status', 'name'])
+    issue_type = IssueField(['fields', 'issuetype', 'name'])
+    summary = IssueField(['fields', 'summary'])
+    resolution = IssueField(['fields', 'resolution', 'name'])
+    assignee = IssueField(['fields', 'assignee', 'name'])
+    reporter = IssueField(['fields', 'reporter', 'name'])
+    priority = IssueField(['fields', 'priority', 'name'])
+    original_estimate = IssueField(['fields', 'timetracking', 'originalEstimateSeconds'])
+    remaining_estimate = IssueField(['fields', 'timetracking', 'remainingEstimateSeconds'])
+    time_spent = IssueField(['fields', 'timetracking', 'timeSpentSeconds'])
 
     worklog_fields = {
         'author': ['author', 'name'],
@@ -122,9 +120,16 @@ class Dumper:
     def __enter__(self):
         self.jira_fields = get_fields(self)
 
-        expand = 'changelog' if self.get_transitions else None
+        expand = ['changelog'] if self.get_transitions else []
 
-        fields = list(map(lambda x: x[1], self.jira_fields.values()))
+        expand = [field[0]
+                  for field
+                  in self.jira_fields.values()
+                  if field[0] != 'fields'] + expand
+
+        fields = [field[1]
+                  for field
+                  in self.jira_fields.values()]
 
         if self.get_comments:
             fields.append('comment')
@@ -132,6 +137,7 @@ class Dumper:
             fields.append('fixVersions')
 
         fields = ','.join(tuple(fields))
+        expand = ','.join(tuple(expand))
 
         self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
         return self
