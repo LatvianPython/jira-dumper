@@ -211,8 +211,8 @@ class Dumper:
         return (
             dict(extract_dict(sla, self.sla_overview_fields), issue=issue['key'])
             for sla
-            in
-            self.jira._get_json(path=issue['key'], params=None, base='{server}/rest/tts-api/latest/sla/overview/{path}')
+            in self.jira._get_json(path=issue['key'], params=None,
+                                   base='{server}/rest/tts-api/latest/sla/overview/{path}')
         )
 
     def issue_generator(self, jql, fields, expand):
