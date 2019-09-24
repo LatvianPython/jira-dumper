@@ -5,15 +5,6 @@ from itertools import chain
 import jira
 
 
-def dict_value(dictionary, path):
-    for key in path:
-        try:
-            dictionary = dictionary[key]
-        except (KeyError, TypeError):
-            return None
-    return dictionary
-
-
 def get_fields(dumper):
     return {
         attribute: jira_field
@@ -23,15 +14,21 @@ def get_fields(dumper):
     }
 
 
+def dict_value(dictionary, path):
+    for key in path:
+        try:
+            dictionary = dictionary[key]
+        except (KeyError, TypeError):
+            return None
+    return dictionary
+
+
 def extract_dict(dictionary, fields):
-    return {name: dict_value(dictionary, path)
-            for name, path
-            in fields.items()}
-
-
-def extract_data(dictionary, fields, key_function):
-    return dict(extract_dict(dictionary, fields),
-                issue=key_function(dictionary))
+    return {
+        name: dict_value(dictionary, path)
+        for name, path
+        in fields.items()
+    }
 
 
 def parse(parser, fields, issue):
@@ -43,12 +40,11 @@ def parse(parser, fields, issue):
 
 
 def parse_list(issues, path_to_list, fields):
-    get_list = partial(dict_value, path=path_to_list)
     return (
         dict(**extract_dict(list_item, fields),
              issue=issue['key'])
         for issue in (issue.raw for issue in issues)
-        for list_item in get_list(issue) or []
+        for list_item in dict_value(issue, path=path_to_list) or []
     )
 
 
@@ -59,6 +55,7 @@ class IssueField(UserList):
 class Dumper:
     """Base class that implements dumping of common/basic Jira fields"""
 
+    issue = IssueField(['key'])
     creation_date = IssueField(['fields', 'created'])
     status = IssueField(['fields', 'status', 'name'])
     issue_type = IssueField(['fields', 'issuetype', 'name'])
@@ -127,7 +124,8 @@ class Dumper:
 
         fields = [field[1]
                   for field
-                  in self.jira_fields.values()]
+                  in self.jira_fields.values()
+                  if len(field) > 1]
 
         if self.get_comments:
             fields.append('comment')
@@ -153,11 +151,12 @@ class Dumper:
         comment_path = ['fields', 'comment', 'comments']
         return parse_list(self.jira_issues, comment_path, self.comment_fields)
 
-    def histories_func(self, field):
+    @staticmethod
+    def histories_func(field, history_fields, item_fields):
         def get_items(issue, histories):
             return (
-                dict(**extract_dict(history, self.history_fields),
-                     **extract_dict(item, self.item_fields),
+                dict(**extract_dict(history, history_fields),
+                     **extract_dict(item, item_fields),
                      issue=issue)
                 for history in histories
                 for item in history['items']
@@ -179,14 +178,16 @@ class Dumper:
             in self.jira_issues
         )
 
+    def history_items(self, field_type):
+        return self.issue_chainer(self.histories_func(field_type, self.history_fields, self.item_fields))
+
     @property
     def transitions(self):
-        return self.issue_chainer(self.histories_func('status'))
+        return self.history_items('status')
 
     @property
     def issues(self):
-        parser = partial(extract_data, key_function=lambda x: x['key'])
-        return parse(parser, self.jira_fields, self.jira_issues)
+        return parse(extract_dict, self.jira_fields, self.jira_issues)
 
     @property
     def worklogs(self):
@@ -197,8 +198,11 @@ class Dumper:
         return self.issue_chainer(self.get_sla)
 
     def issue_worklogs(self, issue):
-        parser = partial(extract_data, key_function=lambda x: issue.key)
-        return parse(parser, self.worklog_fields, self.jira.worklogs(issue=issue.key))
+        return (
+            dict(item, issue=issue.key)
+            for item
+            in parse(extract_dict, self.worklog_fields, self.jira.worklogs(issue=issue.key))
+        )
 
     def get_sla(self, issue):
         # noinspection PyProtectedMember

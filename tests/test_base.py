@@ -3,7 +3,7 @@ import inspect
 import pandas as pd
 
 from jira_dump import Dumper, IssueField
-from jira_dump.base import dict_value, get_fields, extract_data
+from jira_dump.base import dict_value, get_fields, extract_dict
 
 
 def test_dumper_basic(patch_jira):
@@ -47,15 +47,13 @@ def test_get_fields():
     assert len(fields.keys()) > len(get_fields(Dumper))
 
 
-def test_extract_data():
-    parsed_issue = extract_data({'fields': {'a': 'b'}, 'key': 'TEST-123'},
+def test_extract_dict():
+    parsed_issue = extract_dict({'fields': {'a': 'b'}, 'key': 'TEST-123'},
                                 {'c': IssueField(['fields', 'a'])},
-                                lambda x: x['key']
                                 )
 
     assert 'c' in parsed_issue
     assert parsed_issue['c'] == 'b'
-    assert parsed_issue['issue'] == 'TEST-123'
 
 
 def test_worklogs(patch_jira):
@@ -64,6 +62,7 @@ def test_worklogs(patch_jira):
 
         assert len(worklogs) == 10
         assert worklogs[0]['author'] == 'john.doe'
+        assert sorted(worklogs[0].keys()) == ['author', 'comment', 'issue', 'started', 'time_spent']
 
 
 def test_transitions(patch_jira):
@@ -114,4 +113,5 @@ def test_dataframes(patch_jira):
         for name, object_ in inspect.getmembers(Dumper):
             if '__' not in name and inspect.isdatadescriptor(object_):
                 df = pd.DataFrame(getattr(dumper, name))
+                assert 'issue' in df.columns
                 assert len(df) > 0
