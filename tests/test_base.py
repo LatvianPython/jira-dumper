@@ -4,7 +4,7 @@ import pandas as pd
 import tqdm
 
 from jira_dump import Dumper, IssueField
-from jira_dump.base import recurse_path, get_fields, extract_data
+from jira_dump.base import dict_value, get_fields, extract_data
 
 
 def test_dumper_basic(patch_jira):
@@ -34,9 +34,9 @@ def test_issue_field():
     assert field[0] == 'fields'
 
 
-def test_recurse_path():
-    assert recurse_path({'1': {'2': {'3': 'end'}}}, ['1', '2', '3']) == 'end'
-    assert recurse_path({'1': 'end'}, ['a', 'b', 'c']) is None
+def test_dict_value():
+    assert dict_value({'1': {'2': {'3': 'end'}}}, ['1', '2', '3']) == 'end'
+    assert dict_value({'1': 'end'}, ['a', 'b', 'c']) is None
 
 
 def test_get_fields():
@@ -116,8 +116,3 @@ def test_dataframes(patch_jira):
             if '__' not in name and inspect.isdatadescriptor(object_):
                 df = pd.DataFrame(getattr(dumper, name))
                 assert len(df) > 0
-
-
-def test_tqdm(patch_jira):
-    with Dumper(server='https://jira.server.com', jql=None, auth=None, tqdm=True) as dumper:
-        assert isinstance(dumper.issues, tqdm.tqdm)

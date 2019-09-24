@@ -1,19 +1,17 @@
+from collections import UserList
 from functools import partial
 from itertools import chain
-from typing import List
-import inspect
 
 import jira
 
 
-def recurse_path(instance, path):
-    current_attribute, *path = path
-    try:
-        if path:
-            return recurse_path(instance[current_attribute], path)
-        return instance[current_attribute]
-    except (TypeError, KeyError):
-        return None
+def dict_value(dictionary, path):
+    for key in path:
+        try:
+            dictionary = dictionary[key]
+        except (KeyError, TypeError):
+            return None
+    return dictionary
 
 
 def get_fields(dumper):
@@ -25,37 +23,36 @@ def get_fields(dumper):
     }
 
 
-def extract_dict(structure, fields):
-    return {name: recurse_path(structure, path)
+def extract_dict(dictionary, fields):
+    return {name: dict_value(dictionary, path)
             for name, path
             in fields.items()}
 
 
-def extract_data(structure, fields, key_function):
-    return dict(extract_dict(structure, fields),
-                issue=key_function(structure))
+def extract_data(dictionary, fields, key_function):
+    return dict(extract_dict(dictionary, fields),
+                issue=key_function(dictionary))
 
 
-def get_raw(x):
-    return x.raw
-
-
-def parse(parser, fields, data):
-    parser = partial(parser, fields=fields)
-    return map(parser, map(get_raw, data))
+def parse(parser, fields, issue):
+    return (
+        parser(x.raw, fields=fields)
+        for x
+        in issue
+    )
 
 
 def parse_list(issues, path_to_list, fields):
-    get_list = partial(recurse_path, path=path_to_list)
+    get_list = partial(dict_value, path=path_to_list)
     return (
         dict(**extract_dict(list_item, fields),
              issue=issue['key'])
-        for issue in map(get_raw, issues)
+        for issue in (issue.raw for issue in issues)
         for list_item in get_list(issue) or []
     )
 
 
-class IssueField(List):
+class IssueField(UserList):
     pass
 
 
@@ -114,15 +111,9 @@ class Dumper:
     get_comments = True
     get_fix_versions = True
 
-    def __init__(self, server, jql, auth=None, tqdm=False):
+    def __init__(self, server, jql, auth=None):
         self.jql = jql
         self.jira = jira.JIRA(server=server, basic_auth=auth)
-
-        if tqdm:
-            import tqdm
-            self.tqdm = tqdm
-        else:
-            self.tqdm = None
 
     def __enter__(self):
         self.jira_fields = get_fields(self)
@@ -146,10 +137,7 @@ class Dumper:
         fields = ','.join(tuple(fields))
         expand = ','.join(tuple(expand))
 
-        if self.tqdm is not None:
-            self.jira_issues = list(self.tqdm.tqdm(self.issue_generator(self.jql, fields, expand), desc='Issues'))
-        else:
-            self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
+        self.jira_issues = list(self.issue_generator(self.jql, fields, expand))
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -165,23 +153,35 @@ class Dumper:
         comment_path = ['fields', 'comment', 'comments']
         return parse_list(self.jira_issues, comment_path, self.comment_fields)
 
-    @property
-    def transitions(self):
-        def get_items(histories):
-            issue, histories = histories
+    def histories_func(self, field):
+        def get_items(issue, histories):
             return (
                 dict(**extract_dict(history, self.history_fields),
                      **extract_dict(item, self.item_fields),
                      issue=issue)
                 for history in histories
                 for item in history['items']
-                if item['field'] == 'status'
+                if item['field'] == field
             )
 
         def get_histories(issue):
-            return issue.key, recurse_path(get_raw(issue), ['changelog', 'histories'])
+            return issue.key, dict_value(issue.raw, ['changelog', 'histories'])
 
-        return chain.from_iterable(map(get_items, map(get_histories, self.jira_issues)))
+        def get_histories_fields(issue):
+            return get_items(*get_histories(issue))
+
+        return get_histories_fields
+
+    def issue_chainer(self, func):
+        return chain.from_iterable(
+            func(issue)
+            for issue
+            in self.jira_issues
+        )
+
+    @property
+    def transitions(self):
+        return self.issue_chainer(self.histories_func('status'))
 
     @property
     def issues(self):
@@ -190,37 +190,23 @@ class Dumper:
 
     @property
     def worklogs(self):
-        return chain.from_iterable(map(self.issue_worklogs, map(lambda issue: issue.key, self.jira_issues)))
+        return self.issue_chainer(self.issue_worklogs)
 
     @property
     def sla_overview(self):
-        return chain.from_iterable(map(self.get_sla, map(lambda x: x.key, self.jira_issues)))
-
-    def __getattribute__(self, item):
-        if super().__getattribute__('tqdm') is not None:
-            properties = [(name, object_)
-                          for name, object_
-                          in inspect.getmembers(Dumper)
-                          if '__' not in name and inspect.isdatadescriptor(object_)]
-
-            if item in [name for name, _ in properties]:
-                return self.tqdm.tqdm(super().__getattribute__(item), desc=item)
-
-        return super().__getattribute__(item)
-
-
+        return self.issue_chainer(self.get_sla)
 
     def issue_worklogs(self, issue):
-        parser = partial(extract_data, key_function=lambda x: issue)
-        return parse(parser, self.worklog_fields, self.jira.worklogs(issue=issue))
+        parser = partial(extract_data, key_function=lambda x: issue.key)
+        return parse(parser, self.worklog_fields, self.jira.worklogs(issue=issue.key))
 
     def get_sla(self, issue):
         # noinspection PyProtectedMember
         # https://confluence.snapbytes.com/display/TTS/REST+Services
         return (
-            dict(extract_dict(sla, self.sla_overview_fields), issue=issue)
+            dict(extract_dict(sla, self.sla_overview_fields), issue=issue.key)
             for sla
-            in self.jira._get_json(path=issue, params=None, base='{server}/rest/tts-api/latest/sla/overview/{path}')
+            in self.jira._get_json(path=issue.key, params=None, base='{server}/rest/tts-api/latest/sla/overview/{path}')
         )
 
     def issue_generator(self, jql, fields, expand):
