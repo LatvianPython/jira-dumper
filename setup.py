@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='Jira dumper',
-      version='0.1.3',
+      version='0.1.4',
       description='Jira dumping tool',
       author='LatvianPython',
       url='https://github.com/LatvianPython/jira-dumper',

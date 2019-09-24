@@ -1,7 +1,6 @@
 import inspect
 
 import pandas as pd
-import tqdm
 
 from jira_dump import Dumper, IssueField
 from jira_dump.base import dict_value, get_fields, extract_data
