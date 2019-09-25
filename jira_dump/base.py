@@ -147,8 +147,7 @@ class Dumper:
         if self.get_fix_versions:
             fields.append('fixVersions')
 
-        fields = ','.join(tuple(fields))
-        expand = ','.join(tuple(expand))
+        fields, expand = ','.join(tuple(fields)), ','.join(tuple(expand))
 
         self.jira_issues = [
             issue.raw
@@ -160,27 +159,20 @@ class Dumper:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def map_issues(self, func):
-        return (
-            func(issue)
-            for issue
-            in self.jira_issues
-        )
-
     def history_items(self, field_type):
         return chain.from_iterable(
-            self.map_issues(histories_parser(field_type, self.history_fields, self.item_fields))
+            map(histories_parser(field_type, self.history_fields, self.item_fields), self.jira_issues)
         )
 
     @property
     def fix_versions(self):
         fix_version_path = ['fields', 'fixVersions']
-        return chain.from_iterable(self.map_issues(nested_parser(fix_version_path, self.fix_version_fields)))
+        return chain.from_iterable(map(nested_parser(fix_version_path, self.fix_version_fields), self.jira_issues))
 
     @property
     def comments(self):
         comment_path = ['fields', 'comment', 'comments']
-        return chain.from_iterable(self.map_issues(nested_parser(comment_path, self.comment_fields)))
+        return chain.from_iterable(map(nested_parser(comment_path, self.comment_fields), self.jira_issues))
 
     @property
     def transitions(self):
@@ -188,15 +180,15 @@ class Dumper:
 
     @property
     def issues(self):
-        return self.map_issues(partial(extract_dict, fields=self.jira_fields))
+        return map(partial(extract_dict, fields=self.jira_fields), self.jira_issues)
 
     @property
     def worklogs(self):
-        return chain.from_iterable(self.map_issues(self.issue_worklogs))
+        return chain.from_iterable(map(self.issue_worklogs, self.jira_issues))
 
     @property
     def sla_overview(self):
-        return chain.from_iterable(self.map_issues(self.get_sla))
+        return chain.from_iterable(map(self.get_sla, self.jira_issues))
 
     def issue_worklogs(self, issue):
         return (
