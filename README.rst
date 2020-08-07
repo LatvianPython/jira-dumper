@@ -6,6 +6,10 @@ jira-dumper
     :target: https://github.com/psf/black
     :alt: Black
 
+.. image:: http://www.mypy-lang.org/static/mypy_badge.svg
+    :target: http://mypy-lang.org/
+    :alt: Checked with mypy
+
 Allows for hopefully easy and simple data dumps from Jira servers
 
 ##################################################################
