@@ -7,7 +7,7 @@ from jira_dump.base import dict_value, get_fields, extract_dict
 
 
 def test_dumper_basic(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         issues = list(dumper.issues)
         assert len(issues) == 1
 
@@ -20,7 +20,7 @@ def test_subclassing(patch_jira):
     class CustomDumper(Dumper):
         test = IssueField(["fields", "test"])
 
-    with CustomDumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with CustomDumper(server="https://jira.server.com") as dumper:
         for issue in dumper.issues:
             assert "test" in issue
 
@@ -38,13 +38,13 @@ def test_dict_value():
     assert dict_value({"1": "end"}, ["a", "b", "c"]) is None
 
 
-def test_get_fields():
+def test_get_fields(patch_jira):
     class CustomDumper(Dumper):
         test = IssueField(["test1", "test2"])
 
-    fields = get_fields(CustomDumper)
+    fields = get_fields(CustomDumper("", ""))
     assert "test" in fields
-    assert len(fields.keys()) > len(get_fields(Dumper))
+    assert len(fields.keys()) > len(get_fields(Dumper("", "")))
 
 
 def test_extract_dict():
@@ -57,7 +57,7 @@ def test_extract_dict():
 
 
 def test_worklogs(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         worklogs = list(dumper.worklogs)
 
         assert len(worklogs) == 10
@@ -72,7 +72,7 @@ def test_worklogs(patch_jira):
 
 
 def test_transitions(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         transitions = list(dumper.transitions)
 
         assert len(transitions) == 3
@@ -83,7 +83,7 @@ def test_transitions(patch_jira):
 
 
 def test_comments(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         comments = list(dumper.comments)
 
         assert len(comments) == 1
@@ -96,7 +96,7 @@ def test_comments(patch_jira):
 
 
 def test_fix_versions(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         fix_versions = list(dumper.fix_versions)
 
         assert len(fix_versions) == 1
@@ -109,7 +109,7 @@ def test_fix_versions(patch_jira):
 
 
 def test_sla_overview(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         sla_overview = list(dumper.sla_overview)
 
         assert len(sla_overview) == 2
@@ -119,7 +119,7 @@ def test_sla_overview(patch_jira):
 
 
 def test_dataframes(patch_jira):
-    with Dumper(server="https://jira.server.com", jql=None, auth=None) as dumper:
+    with Dumper(server="https://jira.server.com") as dumper:
         for name, object_ in inspect.getmembers(Dumper):
             if "__" not in name and inspect.isdatadescriptor(object_):
                 df = pd.DataFrame(getattr(dumper, name))

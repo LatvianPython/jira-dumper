@@ -1,11 +1,26 @@
-from collections import UserList
+from __future__ import annotations
+
 from functools import partial
 from itertools import chain
+from types import TracebackType
+from typing import (
+    Dict,
+    List,
+    Any,
+    Union,
+    Iterator,
+    Callable,
+    Mapping,
+    Tuple,
+    Optional,
+    Type,
+    TYPE_CHECKING,
+)
 
 import jira
 
 
-def get_fields(dumper):
+def get_fields(dumper: Dumper) -> FieldMap:
     return {
         attribute: jira_field
         for attribute, jira_field in map(
@@ -15,7 +30,7 @@ def get_fields(dumper):
     }
 
 
-def dict_value(dictionary, path):
+def dict_value(dictionary: Dict[str, Any], path: FieldPath) -> Any:
     for key in path:
         try:
             dictionary = dictionary[key]
@@ -24,12 +39,14 @@ def dict_value(dictionary, path):
     return dictionary
 
 
-def extract_dict(dictionary, fields):
+def extract_dict(dictionary: Dict[str, Any], fields: FieldMap) -> Dict[str, Any]:
     return {name: dict_value(dictionary, path) for name, path in fields.items()}
 
 
-def nested_parser(path_to_list, fields):
-    def parse_issue(issue):
+def nested_parser(
+    path_to_list: FieldPath, fields: FieldMap
+) -> Callable[[Dict[str, Any]], Iterator[Dict[str, Any]]]:
+    def parse_issue(issue: Dict[str, Any]) -> Iterator[Dict[str, Any]]:
         return (
             dict(**extract_dict(list_item, fields), issue=issue["key"])
             for list_item in dict_value(issue, path=path_to_list) or []
@@ -38,8 +55,12 @@ def nested_parser(path_to_list, fields):
     return parse_issue
 
 
-def histories_parser(field, history_fields, item_fields):
-    def get_items(issue, histories):
+def histories_parser(
+    field: str, history_fields: FieldMap, item_fields: FieldMap
+) -> Callable[[Dict[str, Any]], Iterator[Dict[str, Any]]]:
+    def get_items(
+        issue: str, histories: List[Dict[str, Any]]
+    ) -> Iterator[Dict[str, str]]:
         return (
             dict(
                 **extract_dict(history, history_fields),
@@ -51,17 +72,22 @@ def histories_parser(field, history_fields, item_fields):
             if item["field"] == field
         )
 
-    def get_histories(issue):
-        return issue["key"], dict_value(issue, ["changelog", "histories"])
+    def get_histories(issue: Dict[str, Any]) -> Tuple[str, Any]:
+        return issue["key"], dict_value(issue, IssueField(["changelog", "histories"]))
 
-    def get_histories_fields(issue):
+    def get_histories_fields(issue: Dict[str, Any]) -> Iterator[Dict[str, str]]:
         return get_items(*get_histories(issue))
 
     return get_histories_fields
 
 
-class IssueField(UserList):
+class IssueField(List[str]):
     pass
+
+
+if TYPE_CHECKING:
+    FieldPath = Union[IssueField, List[str]]
+    FieldMap = Mapping[str, FieldPath]
 
 
 class Dumper:
@@ -118,11 +144,13 @@ class Dumper:
     get_comments = True
     get_fix_versions = True
 
-    def __init__(self, server, jql, auth=None):
-        self.jql = jql
+    def __init__(
+        self, server: str, jql: Optional[str] = None, auth: Optional[str] = None
+    ) -> None:
+        self.jql = jql or ""
         self.jira = jira.JIRA(server=server, basic_auth=auth)
 
-    def __enter__(self):
+    def __enter__(self) -> Dumper:
         self.jira_fields = get_fields(self)
 
         expand = ["changelog"] if self.get_transitions else []
@@ -138,17 +166,23 @@ class Dumper:
         if self.get_fix_versions:
             fields.append("fixVersions")
 
-        fields, expand = ",".join(tuple(fields)), ",".join(tuple(expand))
-
         self.jira_issues = [
-            issue.raw for issue in self.issue_generator(self.jql, fields, expand)
+            issue.raw
+            for issue in self.issue_generator(
+                self.jql, ",".join(tuple(fields)), ",".join(tuple(expand))
+            )
         ]
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
         pass
 
-    def history_items(self, field_type):
+    def history_items(self, field_type: str) -> Iterator[Dict[str, str]]:
         return chain.from_iterable(
             map(
                 histories_parser(field_type, self.history_fields, self.item_fields),
@@ -157,7 +191,7 @@ class Dumper:
         )
 
     @property
-    def fix_versions(self):
+    def fix_versions(self) -> Iterator[Dict[str, str]]:
         fix_version_path = ["fields", "fixVersions"]
         return chain.from_iterable(
             map(
@@ -167,35 +201,35 @@ class Dumper:
         )
 
     @property
-    def comments(self):
+    def comments(self) -> Iterator[Dict[str, str]]:
         comment_path = ["fields", "comment", "comments"]
         return chain.from_iterable(
             map(nested_parser(comment_path, self.comment_fields), self.jira_issues)
         )
 
     @property
-    def transitions(self):
+    def transitions(self) -> Iterator[Dict[str, str]]:
         return self.history_items("status")
 
     @property
-    def issues(self):
+    def issues(self) -> Iterator[Dict[str, str]]:
         return map(partial(extract_dict, fields=self.jira_fields), self.jira_issues)
 
     @property
-    def worklogs(self):
+    def worklogs(self) -> Iterator[Dict[str, str]]:
         return chain.from_iterable(map(self.issue_worklogs, self.jira_issues))
 
     @property
-    def sla_overview(self):
+    def sla_overview(self) -> Iterator[Dict[str, str]]:
         return chain.from_iterable(map(self.get_sla, self.jira_issues))
 
-    def issue_worklogs(self, issue):
+    def issue_worklogs(self, issue: Dict[str, Any]) -> Iterator[Dict[str, str]]:
         return (
             dict(extract_dict(item.raw, self.worklog_fields), issue=issue["key"])
             for item in self.jira.worklogs(issue=issue["key"])
         )
 
-    def get_sla(self, issue):
+    def get_sla(self, issue: Dict[str, str]) -> Iterator[Dict[str, str]]:
         # noinspection PyProtectedMember
         # https://confluence.snapbytes.com/display/TTS/REST+Services
         return (
@@ -207,7 +241,9 @@ class Dumper:
             )
         )
 
-    def issue_generator(self, jql, fields, expand):
+    def issue_generator(  # type: ignore
+        self, jql: str, fields: str, expand: str
+    ) -> Iterator[jira.Issue]:
         page_size = 50
         search_issues = partial(
             self.jira.search_issues,
