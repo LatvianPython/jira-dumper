@@ -65,7 +65,7 @@ def histories_parser(
             dict(
                 **extract_dict(history, history_fields),
                 **extract_dict(item, item_fields),
-                issue=issue
+                issue=issue,
             )
             for history in histories
             for item in history["items"]
@@ -85,7 +85,7 @@ class IssueField(List[str]):
     pass
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     FieldPath = Union[IssueField, List[str]]
     FieldMap = Mapping[str, FieldPath]
 
@@ -253,8 +253,7 @@ class Dumper:
             expand=expand,
         )
         start_at = 0
-        issues = search_issues(startAt=start_at)
-        while issues:
+
+        while issues := search_issues(startAt=start_at):
             yield from issues
             start_at += page_size
-            issues = search_issues(startAt=start_at)
