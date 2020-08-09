@@ -1,3 +1,6 @@
 pandas
 pytest
+coverage
+pytest-cov
+coverage-badge
 mypy

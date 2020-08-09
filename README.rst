@@ -2,6 +2,10 @@
 jira-dumper
 ##################################################################
 
+.. image:: https://raw.githubusercontent.com/LatvianPython/jira-dumper/master/media/coverage.svg?sanitize=true
+    :target: https://github.com/LatvianPython/jira-dumper
+    :alt: Coverage
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: Black
@@ -17,6 +21,6 @@ Installation and usage
 ##################################################################
 
 * clone/download repository
-* ```pip install -r requirements.txt```
-* ```setup.py install```
+* ``pip install -r requirements.txt``
+* ``setup.py install``
 * check *docs/example_customization.py* script on possible use and customization of dumper
