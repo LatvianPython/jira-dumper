@@ -14,6 +14,11 @@ jira-dumper
     :target: http://mypy-lang.org/
     :alt: Checked with mypy
 
+
+.. image:: https://img.shields.io/codeclimate/maintainability/LatvianPython/jira-dumper
+    :target: https://codeclimate.com/github/LatvianPython/jira-dumper
+    :alt: Code Climate maintainability
+
 Allows for hopefully easy and simple data dumps from Jira servers
 
 ##################################################################
