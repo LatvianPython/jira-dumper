@@ -44,9 +44,7 @@ def extract_dict(dictionary: Dict[str, Any], fields: FieldMap) -> Dict[str, Any]
     return {name: dict_value(dictionary, path) for name, path in fields.items()}
 
 
-def nested_parser(
-    path_to_list: FieldPath, fields: FieldMap
-) -> Callable[[Dict[str, Any]], Iterator[Dict[str, Any]]]:
+def nested_parser(path_to_list: FieldPath, fields: FieldMap) -> Parser:
     def parse_issue(issue: Dict[str, Any]) -> Iterator[Dict[str, Any]]:
         return (
             dict(**extract_dict(list_item, fields), issue=issue["key"])
@@ -58,7 +56,7 @@ def nested_parser(
 
 def histories_parser(
     field: str, history_fields: FieldMap, item_fields: FieldMap
-) -> Callable[[Dict[str, Any]], Iterator[Dict[str, Any]]]:
+) -> Parser:
     def get_items(
         issue: str, histories: List[Dict[str, Any]]
     ) -> Iterator[Dict[str, str]]:
@@ -89,6 +87,7 @@ class IssueField(List[str]):
 if TYPE_CHECKING:  # pragma: no cover
     FieldPath = Union[IssueField, List[str]]
     FieldMap = Mapping[str, FieldPath]
+    Parser = Callable[[Dict[str, Any]], Iterator[Dict[str, Any]]]
 
 
 class Dumper:
@@ -224,13 +223,18 @@ class Dumper:
     def issues(self) -> Iterator[Dict[str, str]]:
         return map(partial(extract_dict, fields=self.jira_fields), self.jira_issues)
 
+    def map_issues(
+        self, func: Callable[[Dict[str, Any]], Iterator[Dict[str, str]]]
+    ) -> Iterator[Dict[str, str]]:
+        return chain.from_iterable(map(func, self.jira_issues))
+
     @property
     def worklogs(self) -> Iterator[Dict[str, str]]:
-        return chain.from_iterable(map(self.issue_worklogs, self.jira_issues))
+        return self.map_issues(self.issue_worklogs)
 
     @property
     def sla_overview(self) -> Iterator[Dict[str, str]]:
-        return chain.from_iterable(map(self.get_sla, self.jira_issues))
+        return self.map_issues(self.get_sla)
 
     def issue_worklogs(self, issue: Dict[str, Any]) -> Iterator[Dict[str, str]]:
         return (
