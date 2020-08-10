@@ -223,9 +223,7 @@ class Dumper:
     def issues(self) -> Iterator[Dict[str, str]]:
         return map(partial(extract_dict, fields=self.jira_fields), self.jira_issues)
 
-    def map_issues(
-        self, func: Callable[[Dict[str, Any]], Iterator[Dict[str, str]]]
-    ) -> Iterator[Dict[str, str]]:
+    def map_issues(self, func: Parser) -> Iterator[Dict[str, str]]:
         return chain.from_iterable(map(func, self.jira_issues))
 
     @property
