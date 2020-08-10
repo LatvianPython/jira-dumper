@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import partial
 from itertools import chain
+import multiprocessing
 from types import TracebackType
 from typing import (
     Dict,
@@ -145,10 +146,18 @@ class Dumper:
     get_fix_versions = True
 
     def __init__(
-        self, server: str, jql: Optional[str] = None, auth: Optional[str] = None
+        self,
+        server: str,
+        jql: Optional[str] = None,
+        auth: Optional[Tuple[str, str]] = None,
     ) -> None:
         self.jql = jql or ""
-        self.jira = jira.JIRA(server=server, basic_auth=auth)
+        self.jira = jira.JIRA(
+            server=server,
+            basic_auth=auth,
+            async_=True,
+            async_workers=multiprocessing.cpu_count(),
+        )
 
     def __enter__(self) -> Dumper:
         self.jira_fields = get_fields(self)
@@ -244,16 +253,7 @@ class Dumper:
     def issue_generator(  # type: ignore
         self, jql: str, fields: str, expand: str
     ) -> Iterator[jira.Issue]:
-        page_size = 50
-        search_issues = partial(
-            self.jira.search_issues,
-            maxResults=page_size,
-            jql_str=jql,
-            fields=fields,
-            expand=expand,
-        )
-        start_at = 0
 
-        while issues := search_issues(startAt=start_at):
-            yield from issues
-            start_at += page_size
+        yield from self.jira.search_issues(
+            jql_str=jql, startAt=0, maxResults=0, fields=fields, expand=expand,
+        )
